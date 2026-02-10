@@ -97,9 +97,14 @@ CREDENTIALS_FILE = "credentials.json"
 
 scope = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 
-try:
-    creds = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=scope)
-    client = gspread.authorize(creds)
+if "gcp_service_account" in st.secrets:
+    creds_dict = st.secrets["gcp_service_account"]
+    creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
+else:
+    # กรณีรันในเครื่องตัวเอง (เผื่อไว้)
+    creds = Credentials.from_service_account_file("credentials.json", scopes=scope)
+
+client = gspread.authorize(creds)
 except Exception as e:
     st.error(f"❌ ไม่พบไฟล์กุญแจ ({CREDENTIALS_FILE})")
     st.stop()
