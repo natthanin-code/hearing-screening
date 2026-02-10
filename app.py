@@ -80,13 +80,18 @@ CREDENTIALS_FILE = "credentials.json"
 scope = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 
 try:
-    if "gcp_json" in st.secrets:
-        key_dict = json.loads(st.secrets["gcp_json"])
-        creds = Credentials.from_service_account_info(key_dict, scopes=scope)
+    # ---------------------------------------------------------
+    # วิธีใหม่: อ่านค่าแบบ Dictionary โดยตรง (ไม่ต้องแปลง JSON)
+    # ---------------------------------------------------------
+    if "gcp_service_account" in st.secrets:
+        # อ่านค่าจาก Secrets ที่เป็นแบบ TOML มาใช้ได้เลย
+        creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
     else:
+        # กรณีรันในเครื่องตัวเอง (อ่านจากไฟล์)
         creds = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=scope)
     
     client = gspread.authorize(creds)
+
 except Exception as e:
     st.error(f"❌ เชื่อมต่อไม่ได้: {e}")
     st.stop()
